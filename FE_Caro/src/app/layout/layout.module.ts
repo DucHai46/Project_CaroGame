@@ -4,9 +4,9 @@ import { LoginComponent } from './login/login.component';
 import { LobbyComponent } from './lobby/lobby.component';
 import { RoomComponent } from './lobby/room/room.component';
 import { RegisterComponent } from './register/register.component';
-
-
-
+import { RouterModule } from '@angular/router';
+import { routes } from './layout-routing.module'
+import { FormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     LoginComponent,
@@ -15,7 +15,9 @@ import { RegisterComponent } from './register/register.component';
     RegisterComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    RouterModule.forRoot(routes),
+    FormsModule
   ]
 })
 export class LayoutModule { }

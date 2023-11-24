@@ -6,7 +6,7 @@ import { RegisterComponent } from './register/register.component';
 import { LobbyComponent } from './lobby/lobby.component';
 import { RoomComponent } from './lobby/room/room.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   {
