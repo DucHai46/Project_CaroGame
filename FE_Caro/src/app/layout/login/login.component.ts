@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Form } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { UserLogin } from 'src/app/models/UserLogin.Model';
+import { UserLogin } from '../../models/UserLogin.model';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   }
 
   OnSubmit(form: Form) {
-    if (this.userlogin.Email == "abc" && this.userlogin.Password == "abc") {
+    if (this.userlogin.Email == "" && this.userlogin.Password == "") {
       this.router.navigate(["/lobby"]);
     }
   }

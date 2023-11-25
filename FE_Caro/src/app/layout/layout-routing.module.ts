@@ -9,10 +9,8 @@ import { RoomComponent } from './lobby/room/room.component';
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  {
-    path: 'lobby', component: LobbyComponent,
-    children: [{ path: 'room', component: RoomComponent }]
-  },
+  { path: 'lobby', component: LobbyComponent },
+  { path: 'room', component: RoomComponent }
 ];
 
 
