@@ -1,23 +1,64 @@
 import { Component, OnInit } from '@angular/core';
-import { Form } from '@angular/forms';
+import { Form, NgForm } from '@angular/forms';
 import { UserRegister } from 'src/app/models/UserRegister.model';
 import { Router } from '@angular/router';
+import { RegisterService } from 'src/app/service/Register.service';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
-  userregister: UserRegister = new UserRegister;
+  user: UserRegister = new UserRegister;
+  emailPattern = "^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$";
 
-  constructor(private router: Router) { }
+  constructor(private userService: RegisterService, private router: Router) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
+    this.resetForm();
+
   }
 
-  OnSubmit(form: Form) {
-    alert("Đăng ký thành công")
-    this.router.navigate(['/login'])
+  resetForm() {
+    this.user = {
+      UserName: "",
+      Email: "",
+      Password: "",
+      ConfirmPass: "",
+    }
+  }
+
+
+  checks(user: UserRegister) {
+    if (user.ConfirmPass === '') {
+      return null;
+    }
+
+    if (user.Password !== user.ConfirmPass) {
+      return { mustMatch: true };
+    }
+
+    return false;
+  }
+
+  check: any = '';
+
+
+  OnSubmit(form: NgForm) {
+    this.check = this.checks(this.user);
+    if (!this.check) {
+      this.userService.registerUser(this.user)
+        .subscribe({
+          next: (data: any) => {
+            if (data.isSuccessfulRegistration == true) {
+              this.resetForm();
+              console.log(data.errors)
+              // alert('User registration successful');
+              this.router.navigate(['/login']);
+            }
+          }
+        });
+    }
   }
 
 }
