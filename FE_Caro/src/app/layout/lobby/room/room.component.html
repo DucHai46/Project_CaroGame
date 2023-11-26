@@ -55,8 +55,8 @@
                     </div>
                 </div>
             </div>
-            <div class="flex flex-row justify-center">
-                <div class="w-[300px] flex flex-wrap">
+            <div class="flex flex-row justify-center text-3xl font-bold">
+                <div class="w-[420px] flex flex-wrap">
                     <button  *ngFor="let square of squares; let i = index" class="w-[60px] h-[60px] bg-white border-2 border-black">
                         <div (click)="tick(i)" >{{ square }}</div></button>
                 </div>
