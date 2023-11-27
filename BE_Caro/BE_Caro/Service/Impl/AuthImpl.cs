@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BE_Caro.DataTransferObjects;
+using BE_Caro.JwtFeatures;
 using BE_Caro.Models;
 using Microsoft.AspNetCore.Identity;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace BE_Caro.Service.Impt
 {
@@ -9,11 +11,25 @@ namespace BE_Caro.Service.Impt
     {
         private readonly UserManager<User> userManager;
         private readonly IMapper mapper;
+        private readonly JwtHandler jwtHandler;
 
-        public AuthImpl(UserManager<User> userManager, IMapper mapper)
+        public AuthImpl(UserManager<User> userManager, IMapper mapper, JwtHandler jwtHandler)
         {
             this.userManager = userManager;
             this.mapper = mapper;
+            this.jwtHandler = jwtHandler;
+        }
+
+        public async Task<LoginResponse> loginResponseAsync(UserLogin userAuthentication)
+        {
+            var user = await userManager.FindByNameAsync(userAuthentication.Email);
+
+            var signingCredentials = jwtHandler.GetSigningCredentials();
+            var claims = jwtHandler.GetClaim(user);
+            var tokenOptions = jwtHandler.JwtSecurityToken(signingCredentials, claims);
+            var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
+            return new LoginResponse { IsAuthSuccessful = true, Token = token };
         }
 
         public async Task<RegisterResponse> RegistrationResponseDto(UserRegister userRegistertrationDto)

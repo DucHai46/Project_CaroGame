@@ -30,5 +30,16 @@ namespace BE_Caro.Controllers
             }
             return Ok(this._authService.RegistrationResponseDto(registertrationDto));
         }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] UserLogin userAuthentication)
+        {
+            var user = await userManager.FindByNameAsync(userAuthentication.Email);
+            if (user == null || !await userManager.CheckPasswordAsync(user, userAuthentication.Password))
+            {
+                return Ok(new LoginResponse { ErrorMessage = "Invalid" });
+            }
+            return Ok(this._authService.loginResponseAsync(userAuthentication));
+        }
     }
 }

@@ -4,6 +4,8 @@ namespace BE_Caro.Service
 {
     public interface AuthService
     {
-        public Task<UserRegister> RegistrationResponseDto(UserRegister userRegistertrationDto);
+        public Task<RegisterResponse> RegistrationResponseDto(UserRegister userRegistertrationDto);
+        public Task<LoginResponse> loginResponseAsync(UserLogin userAuthentication);
+
     }
 }

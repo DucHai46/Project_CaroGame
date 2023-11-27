@@ -11,7 +11,6 @@ namespace BE_Caro.Models
         public int Score_1 { get; set; }
         public int Score_2 { get; set; }
         public int Turn {  get; set; }
-        public string History_chat {  get; set; }
         public Room() 
         {
             Player_1 = string.Empty;
@@ -20,7 +19,6 @@ namespace BE_Caro.Models
             Score_1 = 0;
             Score_2 = 0;
             Turn = 1;
-            History_chat = string.Empty;
         }
     }
 }
