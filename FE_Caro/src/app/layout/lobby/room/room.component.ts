@@ -1,12 +1,43 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Room } from 'src/app/models/Room.model';
+import * as signalR from "@microsoft/signalr";
+import { ActivatedRoute } from '@angular/router';
+import { RoomService } from 'src/app/service/Room.service';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.css']
 })
-export class RoomComponent {
+export class RoomComponent implements OnInit {
+  private connection: signalR.HubConnection | undefined;
+  room: Room = { "Id": 0, "Player1": "Bui Duc Hai", "Player2": "Pham Hong Quan", "ChessBoard_state": "_________________________________________________", "Score_1": 0, "Score_2": 0, "Turn": 1 }
+
+  constructor(private route: ActivatedRoute, private roomService: RoomService) { }
+  stringChat: any;
+  Username: any;
+  ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    this.room.Id = idParam ? parseInt(idParam) : 0;
+
+    this.Username = this.route.snapshot.paramMap.get('username');
+
+
+    this.roomService.GetRoombyId(this.room.Id).subscribe({
+      next: (data: any) => {
+        this.room = data
+      }
+    })
+
+    this.connection = new signalR.HubConnectionBuilder()
+      .withUrl("/chatHub")
+      .build();
+  }
+
+  chat() {
+    this.connection?.invoke("SendMessage", this.Username, this.stringChat, this.room.Id.toString())
+  }
+
   turn: number = 1
   reset() {
     this.squares.fill('_');
@@ -21,7 +52,6 @@ export class RoomComponent {
       this.turn = 3 - this.turn
     }
   }
-  room: Room = { "Player1": "Bui Duc Hai", "Player2": "Pham Hong Quan", "ChessBoard_state": "_________________________________________________", "Score_1": 0, "Score_2": 0, "History_Chat": "" }
   squares: string[] = this.room.ChessBoard_state.split('');
 
 }

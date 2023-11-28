@@ -58,8 +58,9 @@ builder.Services.AddCors(options =>
                       });
 });
 builder.Services.AddControllersWithViews();
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<JwtHandler>();
-
+builder.Services.AddSignalR();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -76,7 +77,11 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapHub<ChatHub>("/chatHub");
+});
 app.MapControllers();
 
 app.Run();

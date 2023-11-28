@@ -7,6 +7,7 @@ import { RegisterComponent } from './register/register.component';
 import { RouterModule } from '@angular/router';
 import { routes } from './layout-routing.module'
 import { FormsModule } from '@angular/forms';
+
 @NgModule({
   declarations: [
     LoginComponent,

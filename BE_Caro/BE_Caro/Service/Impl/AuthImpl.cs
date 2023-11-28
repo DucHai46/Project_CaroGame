@@ -42,8 +42,6 @@ namespace BE_Caro.Service.Impt
                 var errors = result.Errors.Select(e => e.Description);
                 return new RegisterResponse { Errors = errors, IsSuccessfulRegistration = false };
             }
-
-
             return new RegisterResponse { IsSuccessfulRegistration = true };
         }
     }

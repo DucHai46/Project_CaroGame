@@ -41,19 +41,17 @@ export class RegisterComponent implements OnInit {
     return false;
   }
 
-  check: any = '';
 
 
   OnSubmit(form: NgForm) {
-    this.check = this.checks(this.user);
-    if (!this.check) {
+    if (!this.checks(this.user)) {
       this.userService.registerUser(this.user)
         .subscribe({
           next: (data: any) => {
             if (data.isSuccessfulRegistration == true) {
               this.resetForm();
-              console.log(data.errors)
-              // alert('User registration successful');
+              // console.log(data.errors)
+              alert('User registration successful');
               this.router.navigate(['/login']);
             }
           }

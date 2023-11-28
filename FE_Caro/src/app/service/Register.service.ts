@@ -5,7 +5,7 @@ import { UserRegister } from '../models/UserRegister.model';
 @Injectable()
 export class RegisterService {
 
-    readonly Url = 'https://localhost:7207'
+    readonly Url = 'https://localhost:7130'
     constructor(private http: HttpClient) { }
 
     registerUser(user: UserRegister) {

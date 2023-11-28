@@ -1,7 +1,7 @@
 <div class="relative">
 
 
-    <div class="absolute bg-white bg-opacity-60 z-10 h-full w-full flex items-center justify-center" *ngIf="!loading_overlay" >
+    <!-- <div class="absolute bg-white bg-opacity-60 z-10 h-full w-full flex items-center justify-center" *ngIf="!loading_overlay" >
       <div class="flex items-center">
         <span class="text-3xl mr-4">Loading</span>
         <svg class="animate-spin h-8 w-8 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -12,7 +12,7 @@
           </path>
         </svg>
       </div>
-    </div>
+    </div> -->
   
   
   
@@ -29,11 +29,11 @@
          <form #loginForm="ngForm" action="" (ngSubmit)="OnSubmit(loginForm.value)">
            <div class="mb-6">
              <label class="block mb-2 font-extrabold" for="">Email</label>
-             <input #Email="ngModel" [(ngModel)]="userlogin.Email" [ngModelOptions]="{standalone: true}" class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded placeholder-opacity-60" type="email" placeholder="abc@gmail.com">
+             <input #Email="ngModel" [(ngModel)]="user.Email" [ngModelOptions]="{standalone: true}" class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded placeholder-opacity-60" type="email" placeholder="abc@gmail.com">
            </div>
            <div class="mb-6">
              <label class="block mb-2 font-extrabold" for="">Password</label>
-             <input #Password="ngModel" [(ngModel)]="userlogin.Password" [ngModelOptions]="{standalone: true}" class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded placeholder-opacity-60" type="password" placeholder="**********">
+             <input #Password="ngModel" [(ngModel)]="user.Password" [ngModelOptions]="{standalone: true}" class="inline-block w-full p-4 leading-6 text-lg font-extrabold placeholder-indigo-900 bg-white shadow border-2 border-indigo-900 rounded placeholder-opacity-60" type="password" placeholder="**********">
            </div>
            <div class="flex flex-wrap -mx-4 mb-6 items-center justify-between">
              <div class="w-full lg:w-auto px-4 mb-4 lg:mb-0">

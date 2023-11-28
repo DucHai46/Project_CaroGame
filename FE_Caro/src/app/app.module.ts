@@ -8,6 +8,10 @@ import { LayoutRoutingModule } from './layout/layout-routing.module';
 import { LayoutModule } from './layout/layout.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RegisterService } from './service/Register.service';
+import { LoginService } from './service/Login.service';
+import { AuthGuard } from './service/Auth.guard';
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -18,9 +22,9 @@ import { RegisterService } from './service/Register.service';
     AppRoutingModule,
     LayoutRoutingModule,
     LayoutModule,
-    HttpClientModule
+    HttpClientModule,
   ],
-  providers: [RegisterService],
+  providers: [RegisterService, LoginService, AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
