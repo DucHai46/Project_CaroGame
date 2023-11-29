@@ -61,3 +61,4 @@ E:\project\dotnet_core\Project_CaroGame\BE_Caro\BE_Caro\obj\Debug\net6.0\refint\
 E:\project\dotnet_core\Project_CaroGame\BE_Caro\BE_Caro\obj\Debug\net6.0\BE_Caro.pdb
 E:\project\dotnet_core\Project_CaroGame\BE_Caro\BE_Caro\obj\Debug\net6.0\BE_Caro.genruntimeconfig.cache
 E:\project\dotnet_core\Project_CaroGame\BE_Caro\BE_Caro\obj\Debug\net6.0\ref\BE_Caro.dll
+E:\project\dotnet_core\Project_CaroGame\BE_Caro\BE_Caro\bin\Debug\net6.0\System.Net.WebSockets.WebSocketProtocol.dll

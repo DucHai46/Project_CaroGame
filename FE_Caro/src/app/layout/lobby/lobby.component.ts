@@ -6,6 +6,8 @@ import { jwtDecode } from 'jwt-decode';
 import { LoginService } from 'src/app/service/Login.service';
 import { RoomService } from 'src/app/service/Room.service';
 import * as signalR from '@microsoft/signalr';
+import { UserService } from 'src/app/service/User.service';
+import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -14,30 +16,11 @@ import * as signalR from '@microsoft/signalr';
 export class LobbyComponent implements OnInit {
 
   room: Room[] = []
-
-  user: User[] = [
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-    { "UserName": 'Bùi Đức Hải', "Score": 0 },
-  ]
+  user: User[] = []
   private connection: signalR.HubConnection | undefined;
 
 
-  constructor(private authService: LoginService, private router: Router, private roomService: RoomService) { }
+  constructor(private authService: LoginService, private router: Router, private roomService: RoomService, private userService: UserService) { }
 
   ngOnInit(): void {
     this.GetClaims(this.tokenString)
@@ -77,6 +60,13 @@ export class LobbyComponent implements OnInit {
     });
   }
 
+  GetAllUser() {
+    this.userService.GetAllUser().subscribe({
+      next: (data:any) => {
+        this.user = data
+      }
+    })
+  }
 
   public logout = () => {
     this.authService.logout();
@@ -86,9 +76,12 @@ export class LobbyComponent implements OnInit {
   JoinRoom(index: number) {
     this.connection?.invoke("JoinRoom", this.room[index].Id.toString())
     this.roomService.JoinRoom(this.room[index].Id, this.Client).subscribe({
-      next: (data: any) => { }
+      next: (data: any) => { },
+      error: (error: HttpErrorResponse) => {
+        alert("Phòng đã đủ người")
+      }
     })
-    this.router.navigate(['/room']);
+    this.router.navigate(['/room', this.room[index].Id, this.Client]);
   }
 
 }

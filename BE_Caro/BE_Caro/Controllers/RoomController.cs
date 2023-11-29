@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BE_Caro.Controllers
 {
     [Route("api/[controller]")]
-    //[Authorize]
+    [Authorize]
     [ApiController]
     public class RoomController : ControllerBase
     {
@@ -42,7 +42,6 @@ namespace BE_Caro.Controllers
         }
 
         [HttpPost("JoinRoom")]
-        [Authorize]
         public IActionResult JoinRoom(int id, string name) 
         {
             var room = _gameContext.rooms.Where(r => r.ID == id).FirstOrDefault<Room>();
@@ -63,7 +62,6 @@ namespace BE_Caro.Controllers
         }
 
         [HttpPost("LeaveRoom")]
-        [Authorize]
         public IActionResult LeaveRoom(int id, string name)
         {
             var room = _gameContext.rooms.Where(r => r.ID == id).FirstOrDefault<Room>();
@@ -81,6 +79,16 @@ namespace BE_Caro.Controllers
             }
             _gameContext.SaveChanges();
             return Ok();
+        }
+
+        [HttpGet("GetTurn")]
+        public IActionResult GetTurn(int idroom) 
+        {
+            var room = _gameContext.rooms.Where(r => r.ID == idroom).FirstOrDefault<Room>();
+            var my_turn = room.Turn;
+            room.Turn = 3 - room.Turn;
+            _gameContext.SaveChanges();
+            return Ok(my_turn);
         }
 
 

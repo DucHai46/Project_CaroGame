@@ -40,11 +40,17 @@ export class RoomComponent implements OnInit {
     this.connection.on("ReceiveMessage", (user: string, message: string) => {
       this.historyChat.push(user + ": " + message)
     });
+
+    this.connection.on("PlayChess", (user: string, message: string) => {
+      this.room.ChessBoard_state = message
+      this.squares = this.room.ChessBoard_state.split('');
+    });
   }
 
   chat() {
     this.connection?.invoke("SendMessage", this.Username, this.stringChat, this.room.Id.toString())
   }
+
 
   LeaveRoom() {
     this.connection?.invoke("LeaveRoom", this.Room_Id.toString());
@@ -56,20 +62,27 @@ export class RoomComponent implements OnInit {
 
 
 
-  turn: number = 1
   reset() {
     this.squares.fill('_');
-  }
-  tick(index: number) {
-    if (this.squares[index] === '_' && this.turn == 1) {
-      this.squares[index] = 'x';
-      this.turn = 3 - this.turn
-    }
-    else if (this.squares[index] === '_' && this.turn == 2) {
-      this.squares[index] = 'o';
-      this.turn = 3 - this.turn
-    }
+    this.room.ChessBoard_state = this.squares.join('')
+    this.connection?.invoke("PlayChess", this.Username, this.room.ChessBoard_state, this.room.Id.toString())
   }
   squares: string[] = this.room.ChessBoard_state.split('');
+  tick(index: number) {
+    this.roomService.GetTurn(this.Room_Id).subscribe({
+      next: (data: any) => {
+        this.room.Turn = data;
+      }
+    })
+    if (this.squares[index] === '_' && this.room.Turn == 1) {
+      this.squares[index] = 'x';
+    }
+    else if (this.squares[index] === '_' && this.room.Turn == 2) {
+      this.squares[index] = 'o';
+    }
+
+    this.room.ChessBoard_state = this.squares.join('')
+    this.connection?.invoke("PlayChess", this.Username, this.room.ChessBoard_state, this.room.Id.toString())
+  }
 
 }

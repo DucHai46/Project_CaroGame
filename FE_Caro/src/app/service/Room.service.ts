@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Room } from '../models/Room.model';
 
@@ -8,42 +8,52 @@ export class RoomService {
     readonly Url = 'https://localhost:7130'
     constructor(private http: HttpClient) { }
 
+    private getHeaders(): HttpHeaders {
+        const token = localStorage.getItem("userToken");
+
+        return new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        });
+    }
     GetAllRoom() {
-        // const body: Room = {
-        //     Id: room.Id,
-        //     Player1: room.Player1,
-        //     Player2: room.Player2,
-        //     ChessBoard_state: room.ChessBoard_state,
-        //     Score_1: room.Score_1,
-        //     Score_2: room.Score_2,
-        //     Turn: room.Turn
+        const headers = this.getHeaders();
 
-        // }
-
-        return this.http.get(this.Url + '/api/Room/GetAllRoom');
+        return this.http.get(`${this.Url}/api/Room/GetAllRoom`, { headers });
     }
 
     GetRoombyId(id: number) {
+        const headers = this.getHeaders();
         let params = new HttpParams();
-        params = params.append('id', id);
+        params = params.append('id', id.toString());
 
-        return this.http.get(this.Url + '/api/room/GetRoom', { params });
+        return this.http.get(`${this.Url}/api/Room/GetRoom`, { headers, params });
+    }
+
+    GetTurn(id: number) {
+        const headers = this.getHeaders();
+        let params = new HttpParams();
+        params = params.append('idroom', id.toString());
+
+        return this.http.get(`${this.Url}/api/Room/GetTurn`, { headers, params });
     }
 
     JoinRoom(id: number, name: string) {
+        const headers = this.getHeaders();
         let params = new HttpParams();
-        params = params.append('id', id);
+        params = params.append('id', id.toString());
         params = params.append('name', name);
 
-        return this.http.post(this.Url + '/api/room/JoinRoom', { params });
+        return this.http.post(`${this.Url}/api/Room/JoinRoom`, null, { headers, params });
     }
 
     LeaveRoom(id: number, name: string) {
+        const headers = this.getHeaders();
         let params = new HttpParams();
-        params = params.append('id', id);
+        params = params.append('id', id.toString());
         params = params.append('name', name);
 
-        return this.http.post(this.Url + '/api/room/LeaveRoom', { params });
+        return this.http.post(`${this.Url}/api/Room/LeaveRoom`, null, { headers, params });
     }
 
 }

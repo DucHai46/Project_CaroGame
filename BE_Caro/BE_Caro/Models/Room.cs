@@ -20,5 +20,7 @@ namespace BE_Caro.Models
             Score_2 = 0;
             Turn = 1;
         }
+
+
     }
 }
