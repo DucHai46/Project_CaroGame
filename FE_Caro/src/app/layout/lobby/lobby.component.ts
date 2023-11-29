@@ -42,6 +42,7 @@ export class LobbyComponent implements OnInit {
   ngOnInit(): void {
     this.GetClaims(this.tokenString)
     this.GetAllRoom()
+
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl("/chatHub")
       .build();
@@ -84,7 +85,10 @@ export class LobbyComponent implements OnInit {
 
   JoinRoom(index: number) {
     this.connection?.invoke("JoinRoom", this.room[index].Id.toString())
-    this.router.navigate(['/room', this.room[index].Id, this.Client]);
+    this.roomService.JoinRoom(this.room[index].Id, this.Client).subscribe({
+      next: (data: any) => { }
+    })
+    this.router.navigate(['/room']);
   }
 
 }

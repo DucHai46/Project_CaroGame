@@ -3,7 +3,7 @@
     <div class="font-extrabold text-sm md:text-lg bg-slate-300 py-3 pl-5">
         <nav class="flex flex-row">
             <div class="basis-1/2 flex flex-row justify-start items-start md:pr-10">
-                <button class="flex flex-row justify-center items-center hover:opacity-80" [routerLink]="['/lobby']">
+                <button class="flex flex-row justify-center items-center hover:opacity-80" (click)="LeaveRoom()">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 md:w-10 md:h-10">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -66,31 +66,13 @@
             	<!-- Component Start -->
             <div class="flex flex-col flex-grow w-full max-w-xl bg-white rounded-lg overflow-hidden border-2">
                 <div class="flex flex-col flex-grow h-0 p-4 overflow-auto">
-                    <div class="flex w-full mt-2 space-x-3 max-w-xs">
+                    <div class="flex w-full mt-2 space-x-3 max-w-xs" *ngFor="let item of historyChat">
                         <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300"></div>
                         <div>
                             <div class="bg-gray-300 p-3 rounded-r-lg rounded-bl-lg">
-                                <p class="text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                <p class="text-sm">{{item}}</p>
                             </div>
-                            <span class="text-xs text-gray-500 leading-none">2 min ago</span>
-                        </div>
-                    </div>
-                    <div class="flex w-full mt-2 space-x-3 max-w-xs">
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300"></div>
-                        <div>
-                            <div class="bg-gray-300 p-3 rounded-r-lg rounded-bl-lg">
-                                <p class="text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                            </div>
-                            <span class="text-xs text-gray-500 leading-none">2 min ago</span>
-                        </div>
-                    </div>
-                    <div class="flex w-full mt-2 space-x-3 max-w-xs">
-                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300"></div>
-                        <div>
-                            <div class="bg-gray-300 p-3 rounded-r-lg rounded-bl-lg">
-                                <p class="text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                            </div>
-                            <span class="text-xs text-gray-500 leading-none">2 min ago</span>
+                            <!-- <span class="text-xs text-gray-500 leading-none">2 min ago</span> -->
                         </div>
                     </div>
                 </div>

@@ -50,12 +50,37 @@ namespace BE_Caro.Controllers
             {
                 room.Player_1 = name;
             }
-            else
+            else if(room.Player_2 == "")
             {
                 room.Player_2 = name;
             }
+            else
+            {
+                return BadRequest();
+            }
             _gameContext.SaveChanges();
-            return Ok(room);
+            return Ok();
+        }
+
+        [HttpPost("LeaveRoom")]
+        [Authorize]
+        public IActionResult LeaveRoom(int id, string name)
+        {
+            var room = _gameContext.rooms.Where(r => r.ID == id).FirstOrDefault<Room>();
+            if (room.Player_1 == name)
+            {
+                room.Player_1 = "";
+            }
+            else if (room.Player_2 == name)
+            {
+                room.Player_2 = "";
+            }
+            else
+            {
+                return BadRequest();
+            }
+            _gameContext.SaveChanges();
+            return Ok();
         }
 
 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Room } from 'src/app/models/Room.model';
 import * as signalR from "@microsoft/signalr";
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from 'src/app/service/Room.service';
 
 @Component({
@@ -10,20 +10,24 @@ import { RoomService } from 'src/app/service/Room.service';
   styleUrls: ['./room.component.css']
 })
 export class RoomComponent implements OnInit {
-  private connection: signalR.HubConnection | undefined;
-  room: Room = { "Id": 0, "Player1": "Bui Duc Hai", "Player2": "Pham Hong Quan", "ChessBoard_state": "_________________________________________________", "Score_1": 0, "Score_2": 0, "Turn": 1 }
 
-  constructor(private route: ActivatedRoute, private roomService: RoomService) { }
-  stringChat: any;
-  Username: any;
+  private connection: signalR.HubConnection | undefined
+  room: Room = new Room
+
+  constructor(private route: ActivatedRoute, private roomService: RoomService, private router: Router) { }
+  stringChat: any
+  historyChat: string[] = []
+  Username: any
+  Room_Id: any
+
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
-    this.room.Id = idParam ? parseInt(idParam) : 0;
+    this.Room_Id = idParam ? parseInt(idParam) : 0;
 
     this.Username = this.route.snapshot.paramMap.get('username');
 
 
-    this.roomService.GetRoombyId(this.room.Id).subscribe({
+    this.roomService.GetRoombyId(this.Room_Id).subscribe({
       next: (data: any) => {
         this.room = data
       }
@@ -32,11 +36,25 @@ export class RoomComponent implements OnInit {
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl("/chatHub")
       .build();
+
+    this.connection.on("ReceiveMessage", (user: string, message: string) => {
+      this.historyChat.push(user + ": " + message)
+    });
   }
 
   chat() {
     this.connection?.invoke("SendMessage", this.Username, this.stringChat, this.room.Id.toString())
   }
+
+  LeaveRoom() {
+    this.connection?.invoke("LeaveRoom", this.Room_Id.toString());
+    this.roomService.LeaveRoom(this.Room_Id, this.Username).subscribe({
+      next: (data: any) => { }
+    })
+    this.router.navigate(['/lobby'])
+  }
+
+
 
   turn: number = 1
   reset() {

@@ -27,6 +27,23 @@ export class RoomService {
         let params = new HttpParams();
         params = params.append('id', id);
 
-        return this.http.get(this.Url, { params });
+        return this.http.get(this.Url + '/api/room/GetRoom', { params });
     }
+
+    JoinRoom(id: number, name: string) {
+        let params = new HttpParams();
+        params = params.append('id', id);
+        params = params.append('name', name);
+
+        return this.http.post(this.Url + '/api/room/JoinRoom', { params });
+    }
+
+    LeaveRoom(id: number, name: string) {
+        let params = new HttpParams();
+        params = params.append('id', id);
+        params = params.append('name', name);
+
+        return this.http.post(this.Url + '/api/room/LeaveRoom', { params });
+    }
+
 }
