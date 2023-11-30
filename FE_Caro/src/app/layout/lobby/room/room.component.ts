@@ -56,7 +56,8 @@ export class RoomComponent implements OnInit {
 }
 
   chat() {
-    this.chatService.sendMessage(this.Username, this.stringChat, this.room.Id.toString())
+    this.historyChat.push(this.stringChat)
+    this.chatService.sendMessage(this.Username, this.stringChat, this.Room_Id.toString())
   }
 
 

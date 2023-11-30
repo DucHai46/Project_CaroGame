@@ -13,6 +13,7 @@ import { AuthGuard } from './service/Auth.guard';
 import { RoomService } from './service/Room.service';
 import { UserService } from './service/User.service';
 import { SignalRService } from './service/SignalR.service';
+import { MessageService } from './service/Message.service';
 
 
 @NgModule({
@@ -27,7 +28,7 @@ import { SignalRService } from './service/SignalR.service';
     LayoutModule,
     HttpClientModule,
   ],
-  providers: [RegisterService, LoginService, AuthGuard, RoomService, UserService, SignalRService],
+  providers: [RegisterService, LoginService, AuthGuard, RoomService, UserService, SignalRService, MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
