@@ -10,6 +10,9 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RegisterService } from './service/Register.service';
 import { LoginService } from './service/Login.service';
 import { AuthGuard } from './service/Auth.guard';
+import { RoomService } from './service/Room.service';
+import { UserService } from './service/User.service';
+import { SignalRService } from './service/SignalR.service';
 
 
 @NgModule({
@@ -24,7 +27,7 @@ import { AuthGuard } from './service/Auth.guard';
     LayoutModule,
     HttpClientModule,
   ],
-  providers: [RegisterService, LoginService, AuthGuard],
+  providers: [RegisterService, LoginService, AuthGuard, RoomService, UserService, SignalRService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

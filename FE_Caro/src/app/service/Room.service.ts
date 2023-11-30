@@ -41,9 +41,13 @@ export class RoomService {
     JoinRoom(id: number, name: string) {
         const headers = this.getHeaders();
         let params = new HttpParams();
-        params = params.append('id', id.toString());
-        params = params.append('name', name);
-
+        if(id !== undefined && id !== null){
+            params = params.append('id', id.toString());
+            params = params.append('name', name);
+        }
+        else {
+            console.log("không tồn tại")
+        }
         return this.http.post(`${this.Url}/api/Room/JoinRoom`, null, { headers, params });
     }
 

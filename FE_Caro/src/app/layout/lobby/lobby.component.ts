@@ -8,6 +8,7 @@ import { RoomService } from 'src/app/service/Room.service';
 import * as signalR from '@microsoft/signalr';
 import { UserService } from 'src/app/service/User.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { SignalRService } from 'src/app/service/SignalR.service';
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -20,15 +21,18 @@ export class LobbyComponent implements OnInit {
   private connection: signalR.HubConnection | undefined;
 
 
-  constructor(private authService: LoginService, private router: Router, private roomService: RoomService, private userService: UserService) { }
+  constructor(private authService: LoginService, private router: Router, private roomService: RoomService, private userService: UserService, private chatService: SignalRService) { }
 
   ngOnInit(): void {
     this.GetClaims(this.tokenString)
     this.GetAllRoom()
-
-    this.connection = new signalR.HubConnectionBuilder()
-      .withUrl("/chatHub")
-      .build();
+    this.chatService.startConnection()
+      .then(() => {
+        console.log('SignalR connection started successfully.');
+      })
+      .catch(error => {
+        console.error('Error starting SignalR connection:', error);
+      });
   }
 
   Client: any = ''
@@ -73,15 +77,14 @@ export class LobbyComponent implements OnInit {
     this.router.navigate(["/login"]);
   }
 
-  JoinRoom(index: number) {
-    this.connection?.invoke("JoinRoom", this.room[index].Id.toString())
-    this.roomService.JoinRoom(this.room[index].Id, this.Client).subscribe({
+  async JoinRoom(index: number) {
+    this.chatService.joinRoom(index.toString())
+    this.roomService.JoinRoom(index, this.Client).subscribe({
       next: (data: any) => { },
       error: (error: HttpErrorResponse) => {
         alert("Phòng đã đủ người")
       }
     })
-    this.router.navigate(['/room', this.room[index].Id, this.Client]);
+    this.router.navigate(['/room', index, this.Client]);
   }
-
 }

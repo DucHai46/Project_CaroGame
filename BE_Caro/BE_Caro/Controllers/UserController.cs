@@ -19,7 +19,7 @@ namespace BE_Caro.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("GetAllUser")]
         public IActionResult GetAllUsers()
         {
             var users = caroGameContext.uses.Select(user => new
@@ -30,6 +30,7 @@ namespace BE_Caro.Controllers
 
             return Ok(users);
         }
+
 
     }
 }

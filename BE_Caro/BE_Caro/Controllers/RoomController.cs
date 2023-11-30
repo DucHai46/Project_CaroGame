@@ -3,11 +3,11 @@ using BE_Caro.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BE_Caro.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
     [ApiController]
     public class RoomController : ControllerBase
     {
@@ -27,6 +27,16 @@ namespace BE_Caro.Controllers
             return Ok();
         }
 
+        [HttpDelete("DeleteAllRoom")]
+        public IActionResult DeleteAllRoom()
+        {
+            string tableName = "rooms";
+            string resetIdentitySql = $"TRUNCATE TABLE {tableName} RESTART IDENTITY;";
+            _gameContext.Database.ExecuteSqlRaw(resetIdentitySql);
+            _gameContext.SaveChanges();
+            return Ok();
+        }
+
         [HttpGet("GetAllRoom")]
         public IActionResult GetRoom()
         {
@@ -34,6 +44,7 @@ namespace BE_Caro.Controllers
             return Ok(roomList);
         }
 
+        [Authorize]
         [HttpGet("GetRoom")]
         public IActionResult GetRoombyId(int id)
         {
@@ -41,52 +52,65 @@ namespace BE_Caro.Controllers
             return Ok(room);
         }
 
+        [Authorize]
         [HttpPost("JoinRoom")]
         public IActionResult JoinRoom(int id, string name) 
         {
             var room = _gameContext.rooms.Where(r => r.ID == id).FirstOrDefault<Room>();
-            if(room.Player_1  == "")
+            if(room != null)
             {
-                room.Player_1 = name;
-            }
-            else if(room.Player_2 == "")
-            {
-                room.Player_2 = name;
-            }
-            else
-            {
-                return BadRequest();
+                if(room.Player_1  == "___")
+                {
+                    room.Player_1 = name;
+                }
+                else if(room.Player_2 == "___")
+                {
+                    room.Player_2 = name;
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
             _gameContext.SaveChanges();
             return Ok();
         }
 
+        [Authorize]
         [HttpPost("LeaveRoom")]
         public IActionResult LeaveRoom(int id, string name)
         {
             var room = _gameContext.rooms.Where(r => r.ID == id).FirstOrDefault<Room>();
-            if (room.Player_1 == name)
+            if(room != null)
             {
-                room.Player_1 = "";
-            }
-            else if (room.Player_2 == name)
-            {
-                room.Player_2 = "";
-            }
-            else
-            {
-                return BadRequest();
+                if (room.Player_1 == name)
+                {
+                    room.Player_1 = "___";
+                }
+                else if (room.Player_2 == name)
+                {
+                    room.Player_2 = "___";
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
             _gameContext.SaveChanges();
             return Ok();
         }
 
+        [Authorize]
         [HttpGet("GetTurn")]
         public IActionResult GetTurn(int idroom) 
         {
             var room = _gameContext.rooms.Where(r => r.ID == idroom).FirstOrDefault<Room>();
-            var my_turn = room.Turn;
-            room.Turn = 3 - room.Turn;
+            var my_turn = 1;
+            if (room != null)
+            {
+                my_turn = room.Turn;
+                room.Turn = 3 - room.Turn;
+            }
             _gameContext.SaveChanges();
             return Ok(my_turn);
         }

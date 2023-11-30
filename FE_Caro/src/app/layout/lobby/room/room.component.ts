@@ -3,6 +3,9 @@ import { Room } from 'src/app/models/Room.model';
 import * as signalR from "@microsoft/signalr";
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from 'src/app/service/Room.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { SignalRService } from 'src/app/service/SignalR.service';
+import { MessageService } from 'src/app/service/Message.service';
 
 @Component({
   selector: 'app-room',
@@ -12,60 +15,63 @@ import { RoomService } from 'src/app/service/Room.service';
 export class RoomComponent implements OnInit {
 
   private connection: signalR.HubConnection | undefined
-  room: Room = new Room
-
-  constructor(private route: ActivatedRoute, private roomService: RoomService, private router: Router) { }
   stringChat: any
   historyChat: string[] = []
-  Username: any
-  Room_Id: any
+  Username: any = this.route.snapshot.paramMap.get('username')
+  idParam = this.route.snapshot.paramMap.get('id')
+  Room_Id: any = this.idParam ? parseInt(this.idParam)+1 : 1
+  room: Room = new Room
+  constructor(private route: ActivatedRoute, private roomService: RoomService, private router: Router, private chatService: SignalRService, private messageService: MessageService ) { }
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    this.Room_Id = idParam ? parseInt(idParam) : 0;
+    if(this.Room_Id !== null){
+        this.roomService.GetRoombyId(this.Room_Id).subscribe({
+          next: (data: any) => {
+            if(data !== null){
+              this.room = data
+              console.log(this.room)
+            }
+            else {
+              console.log("lỗiiii")
+            }
+          }
+        })
+    }
 
-    this.Username = this.route.snapshot.paramMap.get('username');
+    this.chatService.startConnection()
+      .then(() => {
+        console.log('SignalR connection started successfully.');
+      })
+      .catch(error => {
+        console.error('Error starting SignalR connection:', error);
+      });
 
+      this.messageService.getMessage().subscribe(message => {
+        this.historyChat.push(message);
+      });
 
-    this.roomService.GetRoombyId(this.Room_Id).subscribe({
-      next: (data: any) => {
-        this.room = data
-      }
-    })
-
-    this.connection = new signalR.HubConnectionBuilder()
-      .withUrl("/chatHub")
-      .build();
-
-    this.connection.on("ReceiveMessage", (user: string, message: string) => {
-      this.historyChat.push(user + ": " + message)
-    });
-
-    this.connection.on("PlayChess", (user: string, message: string) => {
-      this.room.ChessBoard_state = message
-      this.squares = this.room.ChessBoard_state.split('');
-    });
-  }
+      this.messageService.getchess().subscribe(chess => {
+        this.room.ChessBoard_state = chess
+      })
+}
 
   chat() {
-    this.connection?.invoke("SendMessage", this.Username, this.stringChat, this.room.Id.toString())
+    this.chatService.sendMessage(this.Username, this.stringChat, this.room.Id.toString())
   }
 
 
-  LeaveRoom() {
-    this.connection?.invoke("LeaveRoom", this.Room_Id.toString());
+  async LeaveRoom() {
+    this.chatService.leaveRoom(this.Room_Id.toString())
     this.roomService.LeaveRoom(this.Room_Id, this.Username).subscribe({
       next: (data: any) => { }
     })
     this.router.navigate(['/lobby'])
   }
 
-
-
   reset() {
     this.squares.fill('_');
     this.room.ChessBoard_state = this.squares.join('')
-    this.connection?.invoke("PlayChess", this.Username, this.room.ChessBoard_state, this.room.Id.toString())
+    this.chatService.playChess(this.Username, this.room.ChessBoard_state, this.room.Id.toString())
   }
   squares: string[] = this.room.ChessBoard_state.split('');
   tick(index: number) {
@@ -82,7 +88,8 @@ export class RoomComponent implements OnInit {
     }
 
     this.room.ChessBoard_state = this.squares.join('')
-    this.connection?.invoke("PlayChess", this.Username, this.room.ChessBoard_state, this.room.Id.toString())
+    this.chatService.playChess(this.Username, this.room.ChessBoard_state, this.room.Id.toString())
+
   }
 
 }

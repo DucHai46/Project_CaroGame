@@ -14,7 +14,7 @@ namespace BE_Caro.Models
         public async Task PlayChess(string user, string message, string roomName)
         {
             // Gửi tin nhắn đến các client khác trong cùng phòng chat
-            await Clients.OthersInGroup(roomName).SendAsync("PlayChess", user, message);
+            await Clients.OthersInGroup(roomName).SendAsync("ReceiveChess", user, message);
         }
 
         public async Task JoinRoom(string roomName)

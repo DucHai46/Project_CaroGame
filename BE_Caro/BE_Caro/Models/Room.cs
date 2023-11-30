@@ -13,8 +13,8 @@ namespace BE_Caro.Models
         public int Turn {  get; set; }
         public Room() 
         {
-            Player_1 = string.Empty;
-            Player_2 = string.Empty;
+            Player_1 = "___";
+            Player_2 = "___";
             ChessBoard_state = "_________________________________________________";
             Score_1 = 0;
             Score_2 = 0;
