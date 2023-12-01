@@ -18,8 +18,6 @@ export class LobbyComponent implements OnInit {
 
   room: Room[] = []
   user: User[] = []
-  private connection: signalR.HubConnection | undefined;
-
 
   constructor(private authService: LoginService, private router: Router, private roomService: RoomService, private userService: UserService, private chatService: SignalRService) { }
 
@@ -33,11 +31,19 @@ export class LobbyComponent implements OnInit {
       .catch(error => {
         console.error('Error starting SignalR connection:', error);
       });
+      this.GetAllUser()
   }
 
   Client: any = ''
 
   tokenString: any = localStorage.getItem('userToken');
+
+  CheckStatus(index: number): boolean {
+    if(this.room[index].player_1 != "___" && this.room[index].player_2 != "___"){
+      return true
+    }
+    return false
+  }
 
   GetClaims(token: string) {
     if (token) {
@@ -80,7 +86,8 @@ export class LobbyComponent implements OnInit {
   async JoinRoom(index: number) {
     this.chatService.joinRoom(index.toString())
     this.roomService.JoinRoom(index, this.Client).subscribe({
-      next: (data: any) => { },
+      next: (data: any) => { 
+       },
       error: (error: HttpErrorResponse) => {
         alert("Phòng đã đủ người")
       }

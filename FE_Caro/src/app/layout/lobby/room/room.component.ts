@@ -14,13 +14,13 @@ import { MessageService } from 'src/app/service/Message.service';
 })
 export class RoomComponent implements OnInit {
 
-  private connection: signalR.HubConnection | undefined
   stringChat: any
   historyChat: string[] = []
   Username: any = this.route.snapshot.paramMap.get('username')
   idParam = this.route.snapshot.paramMap.get('id')
   Room_Id: any = this.idParam ? parseInt(this.idParam)+1 : 1
   room: Room = new Room
+  squares: string[][] = [];
   constructor(private route: ActivatedRoute, private roomService: RoomService, private router: Router, private chatService: SignalRService, private messageService: MessageService ) { }
 
   ngOnInit(): void {
@@ -29,7 +29,8 @@ export class RoomComponent implements OnInit {
           next: (data: any) => {
             if(data !== null){
               this.room = data
-              console.log(this.room)
+              this.ChangeChessBoardtoSquares()
+              console.log(data)              
             }
             else {
               console.log("lỗiiii")
@@ -51,7 +52,7 @@ export class RoomComponent implements OnInit {
       });
 
       this.messageService.getchess().subscribe(chess => {
-        this.room.ChessBoard_state = chess
+        this.room.chessBoard_state = chess
       })
 }
 
@@ -63,34 +64,71 @@ export class RoomComponent implements OnInit {
 
   async LeaveRoom() {
     this.chatService.leaveRoom(this.Room_Id.toString())
-    this.roomService.LeaveRoom(this.Room_Id, this.Username).subscribe({
-      next: (data: any) => { }
-    })
+    this.roomService.LeaveRoom(this.Room_Id, this.Username)
     this.router.navigate(['/lobby'])
   }
 
   reset() {
-    this.squares.fill('_');
-    this.room.ChessBoard_state = this.squares.join('')
-    this.chatService.playChess(this.Username, this.room.ChessBoard_state, this.room.Id.toString())
-  }
-  squares: string[] = this.room.ChessBoard_state.split('');
-  tick(index: number) {
-    this.roomService.GetTurn(this.Room_Id).subscribe({
+    for (let i = 0; i < this.squares.length; i++) {
+      for (let j = 0; j < this.squares[i].length; j++) {
+        this.squares[i][j] = '_';
+      }
+    }
+    this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
+    this.chatService.playChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
+    this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
       next: (data: any) => {
-        this.room.Turn = data;
+        console.log(data);
+        this.roomService.GetRoombyId(this.Room_Id).subscribe({
+          next: (data: any) => {
+            console.log(data)
+          }
+        })
       }
     })
-    if (this.squares[index] === '_' && this.room.Turn == 1) {
-      this.squares[index] = 'x';
+  }
+  tick(row: number, col: number) {
+    this.roomService.GetTurn(this.Room_Id).subscribe({
+      next: (data: any) => {
+        this.room.turn = data;
+        console.log(data)
+      }
+    })
+    if (this.squares[row][col] === '_' && this.room.turn == 1) {
+      this.squares[row][col] = 'x';
     }
-    else if (this.squares[index] === '_' && this.room.Turn == 2) {
-      this.squares[index] = 'o';
+    else if (this.squares[row][col] === '_' && this.room.turn == 2) {
+      this.squares[row][col] = 'o';
     }
 
-    this.room.ChessBoard_state = this.squares.join('')
-    this.chatService.playChess(this.Username, this.room.ChessBoard_state, this.room.Id.toString())
+    this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
+    this.chatService.playChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
+    this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
+      next: (data: any) => {
+        console.log(data);
+        this.roomService.GetRoombyId(this.Room_Id).subscribe({
+          next: (data: any) => {
+            console.log(data)
+          }
+        })
+      }
+    })
+  }
 
+  ChangeChessBoardtoSquares(){
+        // Tạo ma trận 7x7
+    for (let i = 0; i < 7; i++) {
+      this.squares[i] = [];
+    }
+
+    // Gán ký tự từ chuỗi vào ma trận
+    let currentIndex = 0;
+    for (let i = 0; i < 7; i++) {
+      for (let j = 0; j < 7; j++) {
+        this.squares[i][j] = this.room.chessBoard_state[currentIndex];
+        currentIndex++;
+      }
+    }
   }
 
 }

@@ -16,6 +16,16 @@ export class RoomService {
             'Authorization': `Bearer ${token}`
         });
     }
+
+    UpdateBoard(id: number, chess: string) {
+        const headers = this.getHeaders();
+        let params = new HttpParams();
+        params = params.append('idroom', id.toString());
+        params = params.append('chessboard', chess);
+
+        return this.http.post(`${this.Url}/api/Room/UpdateBoard`, null, { headers, params });
+    }
+
     GetAllRoom() {
         const headers = this.getHeaders();
 
@@ -37,6 +47,8 @@ export class RoomService {
 
         return this.http.get(`${this.Url}/api/Room/GetTurn`, { headers, params });
     }
+
+
 
     JoinRoom(id: number, name: string) {
         const headers = this.getHeaders();

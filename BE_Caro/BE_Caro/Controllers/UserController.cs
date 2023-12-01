@@ -30,7 +30,5 @@ namespace BE_Caro.Controllers
 
             return Ok(users);
         }
-
-
     }
 }

@@ -54,7 +54,7 @@ namespace BE_Caro.Controllers
 
         [Authorize]
         [HttpPost("JoinRoom")]
-        public IActionResult JoinRoom(int id, string name) 
+        public async Task<IActionResult> JoinRoomAsync(int id, string name) 
         {
             var room = _gameContext.rooms.Where(r => r.ID == id).FirstOrDefault<Room>();
             if(room != null)
@@ -66,19 +66,29 @@ namespace BE_Caro.Controllers
                 else if(room.Player_2 == "___")
                 {
                     room.Player_2 = name;
+
                 }
                 else
                 {
                     return BadRequest();
                 }
+                _gameContext.Entry(room).State = EntityState.Modified;
+
             }
-            _gameContext.SaveChanges();
+            try
+            {
+                await _gameContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(500);
+            }
             return Ok();
         }
 
         [Authorize]
         [HttpPost("LeaveRoom")]
-        public IActionResult LeaveRoom(int id, string name)
+        public async Task<IActionResult> LeaveRoomAsync(int id, string name)
         {
             var room = _gameContext.rooms.Where(r => r.ID == id).FirstOrDefault<Room>();
             if(room != null)
@@ -86,17 +96,32 @@ namespace BE_Caro.Controllers
                 if (room.Player_1 == name)
                 {
                     room.Player_1 = "___";
+
+
                 }
                 else if (room.Player_2 == name)
                 {
                     room.Player_2 = "___";
+
                 }
                 else
                 {
                     return BadRequest();
                 }
+                room.Score_1 = 0;
+                room.Score_2 = 0;
+                room.ChessBoard_state = "_________________________________________________";
+                _gameContext.Entry(room).State = EntityState.Modified;
+
             }
-            _gameContext.SaveChanges();
+            try
+            {
+                await _gameContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(500);
+            }
             return Ok();
         }
 
@@ -114,6 +139,29 @@ namespace BE_Caro.Controllers
             _gameContext.SaveChanges();
             return Ok(my_turn);
         }
+
+        [Authorize]
+        [HttpPost("UpdateBoard")]
+        public async Task<IActionResult> UpdateBoardAsync(int idroom, string chessboard)
+        {
+            var room = _gameContext.rooms.Where(r => r.ID ==idroom).FirstOrDefault<Room>();
+            if(room != null)
+            {
+                room.ChessBoard_state = chessboard;
+                _gameContext.Entry(room).State = EntityState.Modified;
+
+            }
+            try
+            {
+                await _gameContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(500);
+            }
+            return Ok();
+        }
+
 
 
     }

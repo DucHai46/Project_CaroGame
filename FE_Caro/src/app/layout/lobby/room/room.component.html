@@ -74,13 +74,13 @@
             </svg>
           </div>
           <div>
-            {{ room.Player1 }}
+            {{ room.player_1 }}
           </div>
         </div>
         <div
           class="flex flex-col justify-center items-center font-extrabold text-3xl"
         >
-          <div>{{ room.Score_1 }} : {{ room.Score_2 }}</div>
+          <div>{{ room.score_1 }} : {{ room.score_2 }}</div>
           <button (click)="reset()" class="text-base flex flex-row p-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -117,17 +117,27 @@
             </svg>
           </div>
           <div>
-            {{ room.Player2 }}
+            {{ room.player_2 }}
           </div>
         </div>
       </div>
       <div class="flex flex-row justify-center text-3xl font-bold">
         <div class="w-[420px] flex flex-wrap">
-          <button
-            *ngFor="let square of squares; let i = index"
-            class="w-[60px] h-[60px] bg-white border-2 border-black"
-          >
-            <div (click)="tick(i)">{{ square }}</div>
+          <button>
+            <div class="chessboard flex flex-col">
+              <div
+                class="row flex"
+                *ngFor="let row of squares; let rowIndex = index"
+              >
+                <div
+                  class="cell w-[60px] h-[60px] bg-white border-2 border-black flex justify-center items-center"
+                  *ngFor="let cell of row; let columnIndex = index"
+                  (click)="tick(rowIndex, columnIndex)"
+                >
+                  {{ cell }}
+                </div>
+              </div>
+            </div>
           </button>
         </div>
       </div>
