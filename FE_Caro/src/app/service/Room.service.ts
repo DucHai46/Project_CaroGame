@@ -45,7 +45,7 @@ export class RoomService {
         let params = new HttpParams();
         params = params.append('idroom', id.toString());
 
-        return this.http.get(`${this.Url}/api/Room/GetTurn`, { headers, params });
+        return this.http.post(`${this.Url}/api/Room/GetTurn`, null, { headers, params });
     }
 
 

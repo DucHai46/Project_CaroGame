@@ -83,7 +83,7 @@ namespace BE_Caro.Controllers
             {
                 return StatusCode(500);
             }
-            return Ok();
+            return Ok(room);
         }
 
         [Authorize]
@@ -104,13 +104,10 @@ namespace BE_Caro.Controllers
                     room.Player_2 = "___";
 
                 }
-                else
-                {
-                    return BadRequest();
-                }
                 room.Score_1 = 0;
                 room.Score_2 = 0;
                 room.ChessBoard_state = "_________________________________________________";
+                room.Turn = 1;
                 _gameContext.Entry(room).State = EntityState.Modified;
 
             }
@@ -122,22 +119,30 @@ namespace BE_Caro.Controllers
             {
                 return StatusCode(500);
             }
-            return Ok();
+            return Ok(room);
         }
 
         [Authorize]
-        [HttpGet("GetTurn")]
-        public IActionResult GetTurn(int idroom) 
+        [HttpPost("GetTurn")]
+        public async Task<IActionResult> GetTurn(int idroom) 
         {
             var room = _gameContext.rooms.Where(r => r.ID == idroom).FirstOrDefault<Room>();
-            var my_turn = 1;
             if (room != null)
             {
-                my_turn = room.Turn;
-                room.Turn = 3 - room.Turn;
+                if(room.Turn == 1) {  room.Turn = 2; }
+                else { room.Turn = 1; }
+                _gameContext.Entry(room).State = EntityState.Modified;
+                try
+                {
+                    await _gameContext.SaveChangesAsync();
+                }
+                catch
+                {
+                    return StatusCode(500);
+                }
+                return Ok(room.Turn);
             }
-            _gameContext.SaveChanges();
-            return Ok(my_turn);
+            return BadRequest();
         }
 
         [Authorize]

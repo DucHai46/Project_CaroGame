@@ -85,8 +85,10 @@ export class LobbyComponent implements OnInit {
 
   async JoinRoom(index: number) {
     this.chatService.joinRoom(index.toString())
-    this.roomService.JoinRoom(index, this.Client).subscribe({
+    this.roomService.JoinRoom(index+1, this.Client).subscribe({
       next: (data: any) => { 
+          this.room[index] = data
+          console.log("Join"+data)
        },
       error: (error: HttpErrorResponse) => {
         alert("Phòng đã đủ người")

@@ -98,6 +98,12 @@
             </svg>
             Reset
           </button>
+          <p class="font-mono text-sm" *ngIf="this.room.turn == 1">
+            Lượt {{ this.room.player_1 }}
+          </p>
+          <p class="font-mono text-sm" *ngIf="this.room.turn == 2">
+            Lượt {{ this.room.player_2 }}
+          </p>
         </div>
         <div class="flex flex-col justify-center items-center font-extrabold">
           <div class="">

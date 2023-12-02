@@ -13,17 +13,20 @@ export class SignalRService {
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl('https://localhost:7130/chatHub')
             .build();
-        
+    
+      return this.connection.start();
+    }
+    public ReceiveMessage = () => {
         this.connection.on('ReceiveMessage', (user: string, message: string) => {
-            // Gửi tin nhắn nhận được tới MessageService
             this.messageService.sendMessage({ user, message });
         });
-
+    }
+   
+    public ReceiveChess = () => {
         this.connection.on('ReceiveChess', (user: string, message: string) => {
             // Gửi tin nhắn nhận được tới MessageService
             this.messageService.sendchess({ user, message });
         });
-      return this.connection.start();
     }
 
     public sendMessage(user: string, message: string, roomName: string): Promise<void> {

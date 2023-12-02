@@ -37,24 +37,25 @@ export class RoomComponent implements OnInit {
             }
           }
         })
+        this.chatService.startConnection()
+          .then(() => {
+            console.log('SignalR connection started successfully.');
+          })
+          .catch(error => {
+            console.error('Error starting SignalR connection:', error);
+          });
+    
+          this.messageService.getMessage().subscribe(message => {
+            this.historyChat.push(message);
+            console.log(message)
+          });
+    
+          this.messageService.getchess().subscribe(chess => {
+            this.room.chessBoard_state = chess
+          })
     }
-
-    this.chatService.startConnection()
-      .then(() => {
-        console.log('SignalR connection started successfully.');
-      })
-      .catch(error => {
-        console.error('Error starting SignalR connection:', error);
-      });
-
-      this.messageService.getMessage().subscribe(message => {
-        this.historyChat.push(message);
-      });
-
-      this.messageService.getchess().subscribe(chess => {
-        this.room.chessBoard_state = chess
-      })
 }
+
 
   chat() {
     this.historyChat.push(this.stringChat)
@@ -62,9 +63,14 @@ export class RoomComponent implements OnInit {
   }
 
 
-  async LeaveRoom() {
+  LeaveRoom() {
     this.chatService.leaveRoom(this.Room_Id.toString())
-    this.roomService.LeaveRoom(this.Room_Id, this.Username)
+    this.roomService.LeaveRoom(this.Room_Id, this.Username).subscribe({
+      next: (data: any) => {
+        this.room = data;
+        console.log("Leave" +data);
+      }
+    })
     this.router.navigate(['/lobby'])
   }
 
@@ -78,7 +84,6 @@ export class RoomComponent implements OnInit {
     this.chatService.playChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
     this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
       next: (data: any) => {
-        console.log(data);
         this.roomService.GetRoombyId(this.Room_Id).subscribe({
           next: (data: any) => {
             console.log(data)
@@ -88,31 +93,35 @@ export class RoomComponent implements OnInit {
     })
   }
   tick(row: number, col: number) {
-    this.roomService.GetTurn(this.Room_Id).subscribe({
-      next: (data: any) => {
-        this.room.turn = data;
-        console.log(data)
+    if(this.room.player_1 != "___" && this.room.player_2 != "___"){
+      this.roomService.GetTurn(this.Room_Id).subscribe({
+        next: (data: any) => {
+          this.room.turn = data;
+          console.log("Turn:"+data)
+        }
+      })
+      if (this.squares[row][col] === '_' && this.room.turn == 1) {
+        this.squares[row][col] = 'x';
       }
-    })
-    if (this.squares[row][col] === '_' && this.room.turn == 1) {
-      this.squares[row][col] = 'x';
-    }
-    else if (this.squares[row][col] === '_' && this.room.turn == 2) {
-      this.squares[row][col] = 'o';
-    }
+      else if (this.squares[row][col] === '_' && this.room.turn == 2) {
+        this.squares[row][col] = 'o';
+      }
 
-    this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
-    this.chatService.playChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
-    this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
-      next: (data: any) => {
-        console.log(data);
-        this.roomService.GetRoombyId(this.Room_Id).subscribe({
-          next: (data: any) => {
-            console.log(data)
-          }
-        })
-      }
-    })
+      this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
+      this.chatService.playChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
+      this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
+        next: (data: any) => {
+          this.roomService.GetRoombyId(this.Room_Id).subscribe({
+            next: (data: any) => {
+              console.log(data)
+            }
+          })
+        }
+      })
+    }
+    else {
+      alert("Chưa đủ người!");
+    }
   }
 
   ChangeChessBoardtoSquares(){
