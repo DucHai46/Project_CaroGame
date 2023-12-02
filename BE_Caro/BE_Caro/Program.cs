@@ -60,6 +60,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<JwtHandler>();
+builder.Services.AddScoped<ChatHub>();
 builder.Services.AddSignalR();
 var app = builder.Build();
 

@@ -24,6 +24,7 @@ export class LobbyComponent implements OnInit {
   ngOnInit(): void {
     this.GetClaims(this.tokenString)
     this.GetAllRoom()
+    this.GetAllUser()
     this.chatService.startConnection()
       .then(() => {
         console.log('SignalR connection started successfully.');
@@ -31,7 +32,10 @@ export class LobbyComponent implements OnInit {
       .catch(error => {
         console.error('Error starting SignalR connection:', error);
       });
-      this.GetAllUser()
+
+    this.chatService.JRoom().then( () => {
+      this.GetAllRoom()
+    })
   }
 
   Client: any = ''
@@ -39,7 +43,7 @@ export class LobbyComponent implements OnInit {
   tokenString: any = localStorage.getItem('userToken');
 
   CheckStatus(index: number): boolean {
-    if(this.room[index].player_1 != "___" && this.room[index].player_2 != "___"){
+    if(this.room[index-1].player_1 != "___" && this.room[index-1].player_2 != "___"){
       return true
     }
     return false
@@ -84,14 +88,15 @@ export class LobbyComponent implements OnInit {
   }
 
   async JoinRoom(index: number) {
-    this.chatService.joinRoom(index.toString())
-    this.roomService.JoinRoom(index+1, this.Client).subscribe({
+    this.chatService.JoinRoom(this.Client,(index).toString())
+    this.roomService.JoinRoom(index, this.Client).subscribe({
       next: (data: any) => { 
           this.room[index] = data
-          console.log("Join"+data)
        },
       error: (error: HttpErrorResponse) => {
         alert("Phòng đã đủ người")
+        this.router.navigate(['/lobby']);
+
       }
     })
     this.router.navigate(['/room', index, this.Client]);

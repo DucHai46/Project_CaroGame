@@ -18,57 +18,59 @@ export class RoomComponent implements OnInit {
   historyChat: string[] = []
   Username: any = this.route.snapshot.paramMap.get('username')
   idParam = this.route.snapshot.paramMap.get('id')
-  Room_Id: any = this.idParam ? parseInt(this.idParam)+1 : 1
+  Room_Id: any = this.idParam ? parseInt(this.idParam) : 1
   room: Room = new Room
   squares: string[][] = [];
   constructor(private route: ActivatedRoute, private roomService: RoomService, private router: Router, private chatService: SignalRService, private messageService: MessageService ) { }
 
   ngOnInit(): void {
     if(this.Room_Id !== null){
-        this.roomService.GetRoombyId(this.Room_Id).subscribe({
-          next: (data: any) => {
-            if(data !== null){
-              this.room = data
-              this.ChangeChessBoardtoSquares()
-              console.log(data)              
-            }
-            else {
-              console.log("lỗiiii")
-            }
-          }
+      this.getRoom()
+      this.chatService.startConnection()
+        .then(() => {
+          console.log('SignalR connection started successfully.');
         })
-        this.chatService.startConnection()
-          .then(() => {
-            console.log('SignalR connection started successfully.');
-          })
-          .catch(error => {
-            console.error('Error starting SignalR connection:', error);
-          });
-    
-          this.messageService.getMessage().subscribe(message => {
-            this.historyChat.push(message);
-            console.log(message)
-          });
-    
-          this.messageService.getchess().subscribe(chess => {
-            this.room.chessBoard_state = chess
-          })
+        .catch(error => {
+          console.error('Error starting SignalR connection:', error);
+        });
+
+      this.chatService.ReceiveMessage().then((message) => {
+        this.historyChat.push(message)
+      })
+      this.chatService.ReceiveChess().then((data) => {
+        this.room.chessBoard_state = data
+      })
+      this.chatService.LRoom().then(() => {
+        this.getRoom()
+      })
     }
 }
-
+  getRoom() {
+    this.roomService.GetRoombyId(this.Room_Id).subscribe({
+      next: (data: any) => {
+        if(data !== null){
+          this.room = data
+          this.ChangeChessBoardtoSquares()
+          console.log(data)              
+        }
+        else {
+          console.log("lỗiiii")
+        }
+      }
+    })
+  }
 
   chat() {
     this.historyChat.push(this.stringChat)
-    this.chatService.sendMessage(this.Username, this.stringChat, this.Room_Id.toString())
+    this.stringChat = ''
+    this.chatService.ChatRoom(this.Username, this.stringChat, this.Room_Id.toString())
   }
 
 
-  LeaveRoom() {
-    this.chatService.leaveRoom(this.Room_Id.toString())
+  async LeaveRoom() {
+    this.chatService.LeaveRoom(this.Username,this.Room_Id.toString())
     this.roomService.LeaveRoom(this.Room_Id, this.Username).subscribe({
       next: (data: any) => {
-        this.room = data;
-        console.log("Leave" +data);
       }
     })
     this.router.navigate(['/lobby'])
@@ -81,7 +83,9 @@ export class RoomComponent implements OnInit {
       }
     }
     this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
-    this.chatService.playChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
+    this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString()).subscribe({
+      next: (data: any) => {}
+    })
     this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
       next: (data: any) => {
         this.roomService.GetRoombyId(this.Room_Id).subscribe({
@@ -97,18 +101,30 @@ export class RoomComponent implements OnInit {
       this.roomService.GetTurn(this.Room_Id).subscribe({
         next: (data: any) => {
           this.room.turn = data;
-          console.log("Turn:"+data)
+          console.log(data)
         }
       })
       if (this.squares[row][col] === '_' && this.room.turn == 1) {
-        this.squares[row][col] = 'x';
+        if(this.Username == this.room.player_1){
+          this.squares[row][col] = 'x';
+        }
+        else {
+          alert("Lượt đối thủ")
+        }
       }
       else if (this.squares[row][col] === '_' && this.room.turn == 2) {
-        this.squares[row][col] = 'o';
+        if(this.Username == this.room.player_2){
+          this.squares[row][col] = 'o';
+        }
+        else {
+          alert("Lượt đối thủ")
+        }
       }
 
       this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
-      this.chatService.playChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
+      this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString()).subscribe({
+        next: (data: any) => {}
+      })
       this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
         next: (data: any) => {
           this.roomService.GetRoombyId(this.Room_Id).subscribe({

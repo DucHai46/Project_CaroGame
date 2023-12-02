@@ -105,12 +105,15 @@
         class="grid grid-cols-2 md:grid-cols-4 col-span-3 border-r-4 p-10 overflow-auto h-screen pb-20"
       >
         <ul *ngFor="let item of room; let i = index">
-          <button (click)="JoinRoom(i)" class="bg-blue-300 m-5 rounded-md">
+          <button
+            (click)="JoinRoom(item.id)"
+            class="bg-blue-300 m-5 rounded-md"
+          >
             <li class="m-1 border-2 w-fit px-10 py-5 rounded-md bg-green-300">
               <div>
                 <div>
                   <svg
-                    *ngIf="CheckStatus(i)"
+                    *ngIf="CheckStatus(item.id)"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
