@@ -16,7 +16,10 @@ export class SignalRService {
             .withUrl('https://localhost:7130/chatHub')
             .build();
     
-      return this.connection.start();
+      return  this.connection
+      .start()
+      .then(() => console.log('Connection started'))
+      .catch(err => console.log('Error while starting connection: ' + err));
     }
 
     private getHeaders(): HttpHeaders {
@@ -29,13 +32,8 @@ export class SignalRService {
     }
 
     ChatRoom(user: string, message: string, roomName: string) {
-        const headers = this.getHeaders();
-        let params = new HttpParams();
-        params = params.append('user', user);
-        params = params.append('message', message);
-        params = params.append('roomName', roomName);
-
-        return this.http.post(`${this.Url}/api/Chat/Chat`, null, { headers, params });
+        this.connection.invoke('SendMessage', user, message, roomName)
+        .catch(err => console.error(err));
     }
 
     public ReceiveMessage(): Promise<string> {
@@ -52,14 +50,10 @@ export class SignalRService {
         const message = await this.ReceiveMessage();
     }
 
-    PlayChess(user: string, message: string, roomName: string) {
-        const headers = this.getHeaders();
-        let params = new HttpParams();
-        params = params.append('user', user);
-        params = params.append('message', message);
-        params = params.append('roomName', roomName);
 
-        return this.http.post(`${this.Url}/api/Chat/PlayChess`, null, { headers, params });
+    PlayChess(user: string, message: string, roomName: string) {
+        this.connection.invoke('PlayChess', user, message, roomName)
+        .catch(err => console.error(err));
     }
 
     public ReceiveChess(): Promise<string>  {
@@ -77,36 +71,24 @@ export class SignalRService {
     }
 
 
-    JoinRoom(userId: string, roomName: string) {
+
+
+    JoinRoom(roomName: string) {
         const headers = this.getHeaders();
         let params = new HttpParams();
-        params = params.append('userId', userId);
         params = params.append('roomName', roomName);
 
         return this.http.post(`${this.Url}/api/Chat/JoinRoom`, null, { headers, params });
     }
 
-    public JRoom(): Promise<void>  {
-        return new Promise((resolve, reject) => {
-            this.connection.on('JoinRoom', () => {
-            });
-        });
-    }
 
 
-    LeaveRoom(userId: string, roomName: string) {
+    LeaveRoom(roomName: string) {
         const headers = this.getHeaders();
         let params = new HttpParams();
-        params = params.append('userId', userId);
         params = params.append('roomName', roomName);
 
         return this.http.post(`${this.Url}/api/Chat/LeaveRoom`, null, { headers, params });
     }
 
-    public LRoom(): Promise<void>  {
-        return new Promise((resolve, reject) => {
-            this.connection.on('LeaveRoom', () => {
-            });
-        });
-    }
 }

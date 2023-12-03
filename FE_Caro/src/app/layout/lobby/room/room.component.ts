@@ -27,24 +27,17 @@ export class RoomComponent implements OnInit {
     if(this.Room_Id !== null){
       this.getRoom()
       this.chatService.startConnection()
-        .then(() => {
-          console.log('SignalR connection started successfully.');
-        })
-        .catch(error => {
-          console.error('Error starting SignalR connection:', error);
-        });
 
       this.chatService.ReceiveMessage().then((message) => {
         this.historyChat.push(message)
+        console.log(message)
       })
       this.chatService.ReceiveChess().then((data) => {
         this.room.chessBoard_state = data
       })
-      this.chatService.LRoom().then(() => {
-        this.getRoom()
-      })
     }
-}
+  }
+  
   getRoom() {
     this.roomService.GetRoombyId(this.Room_Id).subscribe({
       next: (data: any) => {
@@ -61,14 +54,13 @@ export class RoomComponent implements OnInit {
   }
 
   chat() {
-    this.historyChat.push(this.stringChat)
-    this.stringChat = ''
     this.chatService.ChatRoom(this.Username, this.stringChat, this.Room_Id.toString())
+    this.stringChat = ''
   }
 
 
   async LeaveRoom() {
-    this.chatService.LeaveRoom(this.Username,this.Room_Id.toString())
+    this.chatService.LeaveRoom(this.Room_Id.toString())
     this.roomService.LeaveRoom(this.Room_Id, this.Username).subscribe({
       next: (data: any) => {
       }
@@ -83,9 +75,7 @@ export class RoomComponent implements OnInit {
       }
     }
     this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
-    this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString()).subscribe({
-      next: (data: any) => {}
-    })
+    this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
     this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
       next: (data: any) => {
         this.roomService.GetRoombyId(this.Room_Id).subscribe({
@@ -122,9 +112,7 @@ export class RoomComponent implements OnInit {
       }
 
       this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
-      this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString()).subscribe({
-        next: (data: any) => {}
-      })
+      this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
       this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
         next: (data: any) => {
           this.roomService.GetRoombyId(this.Room_Id).subscribe({

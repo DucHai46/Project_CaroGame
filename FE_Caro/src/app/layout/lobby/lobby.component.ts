@@ -26,16 +26,6 @@ export class LobbyComponent implements OnInit {
     this.GetAllRoom()
     this.GetAllUser()
     this.chatService.startConnection()
-      .then(() => {
-        console.log('SignalR connection started successfully.');
-      })
-      .catch(error => {
-        console.error('Error starting SignalR connection:', error);
-      });
-
-    this.chatService.JRoom().then( () => {
-      this.GetAllRoom()
-    })
   }
 
   Client: any = ''
@@ -70,6 +60,7 @@ export class LobbyComponent implements OnInit {
     this.roomService.GetAllRoom().subscribe({
       next: (data: any) => {
         this.room = data;
+        this.room = this.room.sort((a, b) => a.id > b.id ? 1 : -1)
       }
     });
   }
@@ -88,7 +79,7 @@ export class LobbyComponent implements OnInit {
   }
 
   async JoinRoom(index: number) {
-    this.chatService.JoinRoom(this.Client,(index).toString())
+    this.chatService.JoinRoom((index).toString())
     this.roomService.JoinRoom(index, this.Client).subscribe({
       next: (data: any) => { 
           this.room[index] = data
