@@ -31,6 +31,7 @@ export class RoomComponent implements OnInit {
       this.chatService.ReceiveMessage().then((message) => {
         this.historyChat.push(message)
         console.log(message)
+        console.log("Nhận chat nèee")
       })
       this.chatService.ReceiveChess().then((data) => {
         this.room.chessBoard_state = data
@@ -54,13 +55,15 @@ export class RoomComponent implements OnInit {
   }
 
   chat() {
-    this.chatService.ChatRoom(this.Username, this.stringChat, this.Room_Id.toString())
+    this.chatService.ChatRoom(this.Username, this.stringChat, this.Room_Id.toString()).then( () => {
+      console.log("Chat nèee")
+    })
     this.stringChat = ''
   }
 
-
   async LeaveRoom() {
-    this.chatService.LeaveRoom(this.Room_Id.toString())
+    this.chatService.LeaveRoom(this.Room_Id.toString()).then(() => console.log(`Leaved room: ${this.Room_Id}`))
+    .catch(err => console.error(`Error joining room: ${this.Room_Id}`, err));
     this.roomService.LeaveRoom(this.Room_Id, this.Username).subscribe({
       next: (data: any) => {
       }

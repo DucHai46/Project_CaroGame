@@ -8,7 +8,7 @@ export class SignalRService {
 
     private connection!: signalR.HubConnection;
     readonly Url = 'https://localhost:7130'
-    
+
     constructor(private messageService: MessageService, private http: HttpClient ) { }
   
     public startConnection = () => {
@@ -22,18 +22,9 @@ export class SignalRService {
       .catch(err => console.log('Error while starting connection: ' + err));
     }
 
-    private getHeaders(): HttpHeaders {
-        const token = localStorage.getItem("userToken");
-
-        return new HttpHeaders({
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        });
-    }
-
-    ChatRoom(user: string, message: string, roomName: string) {
-        this.connection.invoke('SendMessage', user, message, roomName)
-        .catch(err => console.error(err));
+    public ChatRoom(user: string, message: string, roomName: string): Promise<void> {
+        // Gửi tin nhắn bằng cách gọi phương thức SendMessage từ server SignalR
+        return this.connection.invoke('SendMessage', user, message, roomName);
     }
 
     public ReceiveMessage(): Promise<string> {
@@ -50,10 +41,9 @@ export class SignalRService {
         const message = await this.ReceiveMessage();
     }
 
-
-    PlayChess(user: string, message: string, roomName: string) {
-        this.connection.invoke('PlayChess', user, message, roomName)
-        .catch(err => console.error(err));
+    public PlayChess(user: string, message: string, roomName: string): Promise<void> {
+        // Gửi tin nhắn bằng cách gọi phương thức SendMessage từ server SignalR
+        return this.connection.invoke('PlayChess', user, message, roomName);
     }
 
     public ReceiveChess(): Promise<string>  {
@@ -70,25 +60,11 @@ export class SignalRService {
         const message = await this.ReceiveChess();
     }
 
-
-
-
-    JoinRoom(roomName: string) {
-        const headers = this.getHeaders();
-        let params = new HttpParams();
-        params = params.append('roomName', roomName);
-
-        return this.http.post(`${this.Url}/api/Chat/JoinRoom`, null, { headers, params });
+    public JoinRoom(roomName: string): Promise<void> {
+        return this.connection.invoke('JoinRoom', roomName);
     }
 
-
-
-    LeaveRoom(roomName: string) {
-        const headers = this.getHeaders();
-        let params = new HttpParams();
-        params = params.append('roomName', roomName);
-
-        return this.http.post(`${this.Url}/api/Chat/LeaveRoom`, null, { headers, params });
+    public LeaveRoom(roomName: string): Promise<void> {
+        return this.connection.invoke('LeaveRoom', roomName);
     }
-
 }

@@ -79,7 +79,8 @@ export class LobbyComponent implements OnInit {
   }
 
   async JoinRoom(index: number) {
-    this.chatService.JoinRoom((index).toString())
+    this.chatService.JoinRoom((index).toString()).then(() => console.log(`Joined room: ${index}`))
+    .catch(err => console.error(`Error joining room: ${index}`, err));
     this.roomService.JoinRoom(index, this.Client).subscribe({
       next: (data: any) => { 
           this.room[index] = data

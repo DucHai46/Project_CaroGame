@@ -37,7 +37,7 @@ namespace BE_Caro.Controllers
         public async Task<IActionResult> JoinRoom(string userId, string roomName)
         {
             await _hubContext.Groups.AddToGroupAsync(userId, roomName);
-            await _hubContext.Clients.All.SendAsync("JoinRoom");
+            //await _hubContext.Clients.All.SendAsync("JoinRoom");
             return Ok();
         }
 
@@ -45,7 +45,7 @@ namespace BE_Caro.Controllers
         public async Task<IActionResult> LeaveRoom(string userId, string roomName)
         {
             await this._hubContext.Groups.RemoveFromGroupAsync(userId, roomName);
-            await _hubContext.Clients.All.SendAsync("LeaveRoom");
+            //await _hubContext.Clients.All.SendAsync("LeaveRoom");
             return Ok();
         }
     }
