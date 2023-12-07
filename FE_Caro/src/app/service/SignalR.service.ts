@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { MessageService } from './Message.service';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -8,6 +8,7 @@ export class SignalRService {
 
     private connection!: signalR.HubConnection;
     readonly Url = 'https://localhost:7130'
+    public messageReceived: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(private messageService: MessageService, private http: HttpClient ) { }
   
@@ -55,6 +56,13 @@ export class SignalRService {
             });
         });
     }
+
+    private registerListeners(): void {
+        this.connection.on('ReceiveMessage', (user, message) => {
+          // Gửi sự kiện tới các thành phần khác để xử lý tin nhắn
+          this.messageReceived.emit({ user, message });
+        });
+      }
 
     async ChessFucn() {
         const message = await this.ReceiveChess();
