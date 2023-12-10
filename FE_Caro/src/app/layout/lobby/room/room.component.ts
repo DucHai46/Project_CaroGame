@@ -4,8 +4,7 @@ import * as signalR from "@microsoft/signalr";
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from 'src/app/service/Room.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { SignalRService } from 'src/app/service/SignalR.service';
-import { MessageService } from 'src/app/service/Message.service';
+
 
 @Component({
   selector: 'app-room',
@@ -21,23 +20,27 @@ export class RoomComponent implements OnInit {
   Room_Id: any = this.idParam ? parseInt(this.idParam) : 1
   room: Room = new Room
   squares: string[][] = [];
-  constructor(private route: ActivatedRoute, private roomService: RoomService, private router: Router, private chatService: SignalRService, private messageService: MessageService ) { }
+  private connection!: signalR.HubConnection;
+
+  constructor(private route: ActivatedRoute, private roomService: RoomService, private router: Router) { }
 
   ngOnInit(): void {
     if(this.Room_Id !== null){
       this.getRoom()
-      this.chatService.startConnection()
-      
-      this.chatService.OnReceiveMessageChat()
-      // this.chatService.ReceiveMessage().then((message) => {
-      //   this.historyChat.push(message)
-      //   console.log(message)
-      //   console.log("Nhận chat nèee")
-      // })
-      // this.chatService.ReceiveChess().then((data) => {
-      //   this.room.chessBoard_state = data
-      // })
+      this.startConnection()
+      this.ReceiveMessage()
     }
+  }
+
+  public startConnection = () => {
+      this.connection = new signalR.HubConnectionBuilder()
+          .withUrl('https://localhost:7130/chatHub')
+          .build();
+  
+    return  this.connection
+    .start()
+    .then(() => console.log('Connection started'))
+    .catch(err => console.log('Error while starting connection: ' + err));
   }
   
   getRoom() {
@@ -56,15 +59,23 @@ export class RoomComponent implements OnInit {
   }
 
   chat() {
-    this.chatService.ChatRoom(this.Username, this.stringChat, this.Room_Id.toString()).then( () => {
-      console.log("Chat nèee")
-    })
+    this.connection.invoke('SendMessage', this.Username, this.stringChat, this.Room_Id.toString()).then( () => {
+      console.log("chattt")
+    });
     this.stringChat = ''
   }
 
+  ReceiveMessage = () => {
+    this.connection.on("ReceiveMessage", (user: any, message: any) => {
+      console.log(message)
+      this.historyChat.push(user + ": " + message)
+    })
+  }
+
   async LeaveRoom() {
-    this.chatService.LeaveRoom(this.Room_Id.toString()).then(() => console.log(`Leaved room: ${this.Room_Id}`))
-    .catch(err => console.error(`Error joining room: ${this.Room_Id}`, err));
+    this.connection.invoke('LeaveRoom', this.Room_Id.toString()).then(() => {
+      console.log("Leave Room: " + this.Room_Id)
+    });
     this.roomService.LeaveRoom(this.Room_Id, this.Username).subscribe({
       next: (data: any) => {
       }

@@ -21,7 +21,4 @@ export class UserService {
 
         return this.http.get(`${this.Url}/api/User/GetAllUser`, { headers });
     }
-
-
-
 }

@@ -8,7 +8,7 @@ import { RoomService } from 'src/app/service/Room.service';
 import * as signalR from '@microsoft/signalr';
 import { UserService } from 'src/app/service/User.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { SignalRService } from 'src/app/service/SignalR.service';
+
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
@@ -18,15 +18,27 @@ export class LobbyComponent implements OnInit {
 
   room: Room[] = []
   user: User[] = []
+  private connection!: signalR.HubConnection;
 
-  constructor(private authService: LoginService, private router: Router, private roomService: RoomService, private userService: UserService, private chatService: SignalRService) { }
+  constructor(private authService: LoginService, private router: Router, private roomService: RoomService, private userService: UserService) { }
 
   ngOnInit(): void {
     this.GetClaims(this.tokenString)
     this.GetAllRoom()
     this.GetAllUser()
-    this.chatService.startConnection()
+    this.startConnection()
   }
+
+  public startConnection = () => {
+      this.connection = new signalR.HubConnectionBuilder()
+          .withUrl('https://localhost:7130/chatHub')
+          .build();
+    
+      return  this.connection
+      .start()
+      .then(() => console.log('Connection started'))
+      .catch(err => console.log('Error while starting connection: ' + err));
+    }
 
   Client: any = ''
 
@@ -79,8 +91,9 @@ export class LobbyComponent implements OnInit {
   }
 
   async JoinRoom(index: number) {
-    this.chatService.JoinRoom((index).toString()).then(() => console.log(`Joined room: ${index}`))
-    .catch(err => console.error(`Error joining room: ${index}`, err));
+    this.connection.invoke('JoinRoom', index.toString()).then(() => {
+      console.log("Join Room: " + index)
+    });
     this.roomService.JoinRoom(index, this.Client).subscribe({
       next: (data: any) => { 
           this.room[index] = data
