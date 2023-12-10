@@ -72,4 +72,58 @@ export class RoomService {
         return this.http.post(`${this.Url}/api/Room/LeaveRoom`, null, { headers, params });
     }
 
+    Score(id: number, score1: number, score2: number) {
+        const headers = this.getHeaders();
+        let params = new HttpParams();
+        params = params.append('idroom', id.toString());
+        params = params.append('score1', score1.toString());
+        params = params.append('score2', score2.toString());
+
+        return this.http.post(`${this.Url}/api/Room/Score`, null, { headers, params });
+    }
+
+
+    checkWin(Squares: any, player: any): boolean {
+        const rowCount = Squares.length;
+        const colCount = Squares[0].length;
+
+        const directions: Array<[number, number]> = [
+            [1, 0],         // Kiểm tra hàng ngang
+            [0, 1],         // Kiểm tra hàng dọc
+            [1, 1],         // Kiểm tra đường chéo chính
+            [1, -1]         // Kiểm tra đường chéo phụ
+        ];
+
+        for (let row = 0; row < rowCount; row++) {
+            for (let col = 0; col < colCount; col++) {
+                if (Squares[row][col] === player) {
+                    for (const direction of directions) {
+                        if (this.checkDirection(Squares, row, col, direction, player)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    checkDirection(board: any, startRow: number, startCol: number, direction: [number, number], player: any): boolean {
+        const rowCount = board.length;
+        const colCount = board[0].length;
+        const [deltaRow, deltaCol] = direction;
+
+        for (let i = 0; i < 5; i++) {
+            const row = startRow + i * deltaRow;
+            const col = startCol + i * deltaCol;
+
+            if (row < 0 || row >= rowCount || col < 0 || col >= colCount || board[row][col] !== player) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

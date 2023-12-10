@@ -167,7 +167,28 @@ namespace BE_Caro.Controllers
             return Ok();
         }
 
+        [Authorize]
+        [HttpPost("Score")]
+        public async Task<IActionResult> Score(int idroom, int score1, int score2)
+        {
+            var room = _gameContext.rooms.Where(r => r.ID == idroom).FirstOrDefault<Room>();
+            if (room != null)
+            {
+                room.Score_1 = score1;
+                room.Score_2 = score2;
+                _gameContext.Entry(room).State = EntityState.Modified;
 
+            }
+            try
+            {
+                await _gameContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(500);
+            }
+            return Ok();
+        }
 
     }
 }

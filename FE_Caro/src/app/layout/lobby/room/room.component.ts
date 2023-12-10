@@ -27,15 +27,16 @@ export class RoomComponent implements OnInit {
     if(this.Room_Id !== null){
       this.getRoom()
       this.chatService.startConnection()
-
-      this.chatService.ReceiveMessage().then((message) => {
-        this.historyChat.push(message)
-        console.log(message)
-        console.log("Nhận chat nèee")
-      })
-      this.chatService.ReceiveChess().then((data) => {
-        this.room.chessBoard_state = data
-      })
+      
+      this.chatService.OnReceiveMessageChat()
+      // this.chatService.ReceiveMessage().then((message) => {
+      //   this.historyChat.push(message)
+      //   console.log(message)
+      //   console.log("Nhận chat nèee")
+      // })
+      // this.chatService.ReceiveChess().then((data) => {
+      //   this.room.chessBoard_state = data
+      // })
     }
   }
   
@@ -78,7 +79,7 @@ export class RoomComponent implements OnInit {
       }
     }
     this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
-    this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
+    // this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
     this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
       next: (data: any) => {
         this.roomService.GetRoombyId(this.Room_Id).subscribe({
@@ -91,12 +92,6 @@ export class RoomComponent implements OnInit {
   }
   tick(row: number, col: number) {
     if(this.room.player_1 != "___" && this.room.player_2 != "___"){
-      this.roomService.GetTurn(this.Room_Id).subscribe({
-        next: (data: any) => {
-          this.room.turn = data;
-          console.log(data)
-        }
-      })
       if (this.squares[row][col] === '_' && this.room.turn == 1) {
         if(this.Username == this.room.player_1){
           this.squares[row][col] = 'x';
@@ -113,13 +108,36 @@ export class RoomComponent implements OnInit {
           alert("Lượt đối thủ")
         }
       }
+      
+      if(this.roomService.checkWin(this.squares, 'x')){
+        this.room.score_1++
+        this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
+        alert("Người chơi " + this.room.player_1 + " chiến thắng")
+        this.reset()
+        return
+      }
+      else if(this.roomService.checkWin(this.squares, 'o')){
+        this.room.score_2++
+        this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
+        alert("Người chơi " + this.room.player_2 + " chiến thắng")
+        this.reset()
+        return
+      }
+
+      this.roomService.GetTurn(this.Room_Id).subscribe({
+        next: (data: any) => {
+          this.room.turn = data;
+          console.log(data)
+        }
+      })
 
       this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
-      this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
+      // this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
       this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
         next: (data: any) => {
           this.roomService.GetRoombyId(this.Room_Id).subscribe({
             next: (data: any) => {
+              this.room = data
               console.log(data)
             }
           })

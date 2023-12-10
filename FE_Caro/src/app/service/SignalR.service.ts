@@ -38,37 +38,37 @@ export class SignalRService {
         });
     }
 
+    public OnReceiveMessageChat() {
+        this.connection.on('ReceiveMessage', (data: any) => {
+            console.log(data);
+        })
+    }
+
     async MessageFucn() {
         const message = await this.ReceiveMessage();
     }
 
-    public PlayChess(user: string, message: string, roomName: string): Promise<void> {
-        // Gửi tin nhắn bằng cách gọi phương thức SendMessage từ server SignalR
-        return this.connection.invoke('PlayChess', user, message, roomName);
-    }
+    // public PlayChess(user: string, message: string, roomName: string): Promise<void> {
+    //     // Gửi tin nhắn bằng cách gọi phương thức SendMessage từ server SignalR
+    //     return this.connection.invoke('PlayChess', user, message, roomName);
+    // }
 
-    public ReceiveChess(): Promise<string>  {
-        return new Promise((resolve, reject) => {
-            this.connection.on('ReceiveChess', (data, data_1) => {
-                const message =  data_1; // Tạo thông điệp
+    // public ReceiveChess(): Promise<string>  {
+    //     return new Promise((resolve, reject) => {
+    //         this.connection.on('ReceiveChess', (data, data_1) => {
+    //             const message =  data_1; // Tạo thông điệp
             
-                resolve(message); // Trả về giá trị thông điệp qua Promise
-            });
-        });
-    }
+    //             resolve(message); // Trả về giá trị thông điệp qua Promise
+    //         });
+    //     });
+    // }
 
-    private registerListeners(): void {
-        this.connection.on('ReceiveMessage', (user, message) => {
-          // Gửi sự kiện tới các thành phần khác để xử lý tin nhắn
-          this.messageReceived.emit({ user, message });
-        });
-      }
-
-    async ChessFucn() {
-        const message = await this.ReceiveChess();
-    }
+    // async ChessFucn() {
+    //     const message = await this.ReceiveChess();
+    // }
 
     public JoinRoom(roomName: string): Promise<void> {
+        console.log("JoinRoom call");
         return this.connection.invoke('JoinRoom', roomName);
     }
 

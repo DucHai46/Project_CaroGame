@@ -13,15 +13,15 @@ export class MessageService {
       this.messageSubject.next(message);
     }
 
-    private chessSubject = new Subject<any>();
+    // private chessSubject = new Subject<any>();
 
-    public getchess(): Subject<any> {
-      return this.chessSubject;
-    }
+    // public getchess(): Subject<any> {
+    //   return this.chessSubject;
+    // }
   
-    public sendchess(chess: any): void {
-      this.chessSubject.next(chess);
-    }
+    // public sendchess(chess: any): void {
+    //   this.chessSubject.next(chess);
+    // }
     
 constructor() { }
 
