@@ -8,23 +8,25 @@ namespace BE_Caro.Models
         public async Task SendMessage(string user, string message, string roomName)
         {
             // Gửi tin nhắn đến các client khác trong cùng phòng chat
-            await Clients.Group(roomName).SendAsync("ReceiveMessage", user, message);
+            await Clients.All.SendAsync("ReceiveMessage", user, message, roomName);
         }
 
-        public async Task PlayChess(string user, string message, string roomName)
+        public async Task PlayChess(string roomName)
         {
             // Gửi tin nhắn đến các client khác trong cùng phòng chat
-            await Clients.Group(roomName).SendAsync("ReceiveChess", user, message);
+            await Clients.All.SendAsync("PlayChess");
         }
 
-        public async Task JoinRoom(string roomName)
+        public async Task JoinRoom(string roomName, string user)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, roomName);
+            await Clients.All.SendAsync("JoinRoom", user);
         }
 
-        public async Task LeaveRoom(string roomName)
+        public async Task LeaveRoom(string roomName, string user)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomName);
+            await Clients.All.SendAsync("LeaveRoom", user);
         }
     }
 }

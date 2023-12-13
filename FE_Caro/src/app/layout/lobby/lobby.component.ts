@@ -27,6 +27,8 @@ export class LobbyComponent implements OnInit {
     this.GetAllRoom()
     this.GetAllUser()
     this.startConnection()
+    this.ReceiveJoin()
+    this.ReceiveLeave()
   }
 
   public startConnection = () => {
@@ -90,8 +92,8 @@ export class LobbyComponent implements OnInit {
     this.router.navigate(["/login"]);
   }
 
-  async JoinRoom(index: number) {
-    this.connection.invoke('JoinRoom', index.toString()).then(() => {
+  JoinRoom(index: number) {
+    this.connection.invoke('JoinRoom', index.toString(), this.Client).then(() => {
       console.log("Join Room: " + index)
     });
     this.roomService.JoinRoom(index, this.Client).subscribe({
@@ -105,5 +107,18 @@ export class LobbyComponent implements OnInit {
       }
     })
     this.router.navigate(['/room', index, this.Client]);
+  }
+
+
+  ReceiveLeave() {
+    this.connection.on("LeaveRoom", (data: any) => {
+      this.GetAllRoom()
+    })
+  }
+
+  ReceiveJoin() {
+    this.connection.on("JoinRoom", (data: any) => {
+      this.GetAllRoom()
+    })
   }
 }

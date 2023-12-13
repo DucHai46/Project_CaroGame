@@ -29,6 +29,9 @@ export class RoomComponent implements OnInit {
       this.getRoom()
       this.startConnection()
       this.ReceiveMessage()
+      this.ReceiveLeave()
+      this.ReceiveJoin()
+      this.ReceivePlay()
     }
   }
 
@@ -49,7 +52,7 @@ export class RoomComponent implements OnInit {
         if(data !== null){
           this.room = data
           this.ChangeChessBoardtoSquares()
-          console.log(data)              
+          // console.log(this.room.chessBoard_state)              
         }
         else {
           console.log("lỗiiii")
@@ -66,14 +69,16 @@ export class RoomComponent implements OnInit {
   }
 
   ReceiveMessage = () => {
-    this.connection.on("ReceiveMessage", (user: any, message: any) => {
-      console.log(message)
-      this.historyChat.push(user + ": " + message)
+    this.connection.on("ReceiveMessage", (user: any, message: any, roomid: any) => {
+      if(this.Room_Id == parseInt(roomid)){
+        console.log(message)
+        this.historyChat.push(user + ": " + message)
+      }
     })
   }
 
-  async LeaveRoom() {
-    this.connection.invoke('LeaveRoom', this.Room_Id.toString()).then(() => {
+  LeaveRoom() {
+    this.connection.invoke('LeaveRoom', this.Room_Id.toString(), this.Username).then(() => {
       console.log("Leave Room: " + this.Room_Id)
     });
     this.roomService.LeaveRoom(this.Room_Id, this.Username).subscribe({
@@ -83,6 +88,38 @@ export class RoomComponent implements OnInit {
     this.router.navigate(['/lobby'])
   }
 
+  ReceiveLeave() {
+    this.connection.on("LeaveRoom", (data: any) => {
+      this.getRoom()
+    })
+  }
+
+  ReceiveJoin() {
+    this.connection.on("JoinRoom", (data: any) => {
+      this.getRoom()
+    })
+  }
+
+  ReceivePlay() {
+    this.connection.on("PlayChess", () => {
+      this.getRoom()
+      if(this.roomService.checkWin(this.squares, 'x')){
+        this.room.score_1++
+        this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
+        alert("Người chơi " + this.room.player_1 + " chiến thắng")
+        this.reset()
+      }
+      else if(this.roomService.checkWin(this.squares, 'o')){
+        this.room.score_2++
+        this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
+        alert("Người chơi " + this.room.player_2 + " chiến thắng")
+        this.reset()
+      }
+    })
+  }
+
+
+
   reset() {
     for (let i = 0; i < this.squares.length; i++) {
       for (let j = 0; j < this.squares[i].length; j++) {
@@ -90,16 +127,17 @@ export class RoomComponent implements OnInit {
       }
     }
     this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
-    // this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
     this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
       next: (data: any) => {
         this.roomService.GetRoombyId(this.Room_Id).subscribe({
           next: (data: any) => {
-            console.log(data)
+              this.room = data
+              console.log(data)
           }
         })
       }
     })
+    this.connection.invoke("PlayChess", this.Room_Id.toString())
   }
   tick(row: number, col: number) {
     if(this.room.player_1 != "___" && this.room.player_2 != "___"){
@@ -119,31 +157,16 @@ export class RoomComponent implements OnInit {
           alert("Lượt đối thủ")
         }
       }
-      
-      if(this.roomService.checkWin(this.squares, 'x')){
-        this.room.score_1++
-        this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
-        alert("Người chơi " + this.room.player_1 + " chiến thắng")
-        this.reset()
-        return
-      }
-      else if(this.roomService.checkWin(this.squares, 'o')){
-        this.room.score_2++
-        this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
-        alert("Người chơi " + this.room.player_2 + " chiến thắng")
-        this.reset()
-        return
-      }
 
+      console.log(this.room.turn)
       this.roomService.GetTurn(this.Room_Id).subscribe({
         next: (data: any) => {
           this.room.turn = data;
-          console.log(data)
+          console.log(this.room.turn)
         }
       })
 
       this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
-      // this.chatService.PlayChess(this.Username, this.room.chessBoard_state, this.room.id.toString())
       this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
         next: (data: any) => {
           this.roomService.GetRoombyId(this.Room_Id).subscribe({
@@ -154,6 +177,7 @@ export class RoomComponent implements OnInit {
           })
         }
       })
+      this.connection.invoke("PlayChess", this.Room_Id.toString())
     }
     else {
       alert("Chưa đủ người!");
