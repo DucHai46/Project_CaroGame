@@ -91,29 +91,33 @@ export class RoomComponent implements OnInit {
   ReceiveLeave() {
     this.connection.on("LeaveRoom", (data: any) => {
       this.getRoom()
+      console.log(data + " leave room")
     })
   }
 
   ReceiveJoin() {
     this.connection.on("JoinRoom", (data: any) => {
       this.getRoom()
+      console.log(data + " join room")
     })
   }
 
   ReceivePlay() {
-    this.connection.on("PlayChess", () => {
-      this.getRoom()
-      if(this.roomService.checkWin(this.squares, 'x')){
-        this.room.score_1++
-        this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
-        alert("Người chơi " + this.room.player_1 + " chiến thắng")
-        this.reset()
-      }
-      else if(this.roomService.checkWin(this.squares, 'o')){
-        this.room.score_2++
-        this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
-        alert("Người chơi " + this.room.player_2 + " chiến thắng")
-        this.reset()
+    this.connection.on("PlayChess", (data: any) => {
+      if(data == this.Room_Id){
+        this.getRoom()
+        if(this.roomService.checkWin(this.squares, 'x')){
+          this.room.score_1++
+          this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
+          alert("Người chơi " + this.room.player_1 + " chiến thắng")
+          this.reset()
+        }
+        else if(this.roomService.checkWin(this.squares, 'o')){
+          this.room.score_2++
+          this.roomService.Score(this.Room_Id, this.room.score_1, this.room.score_2)
+          alert("Người chơi " + this.room.player_2 + " chiến thắng")
+          this.reset()
+        }
       }
     })
   }
@@ -159,25 +163,16 @@ export class RoomComponent implements OnInit {
       }
 
       console.log(this.room.turn)
-      this.roomService.GetTurn(this.Room_Id).subscribe({
-        next: (data: any) => {
-          this.room.turn = data;
-          console.log(this.room.turn)
-        }
-      })
+      this.roomService.GetTurn(this.Room_Id).subscribe()
 
       this.room.chessBoard_state = this.squares.map(row => row.join('')).join('');
       this.roomService.UpdateBoard(this.Room_Id, this.room.chessBoard_state).subscribe({
-        next: (data: any) => {
-          this.roomService.GetRoombyId(this.Room_Id).subscribe({
-            next: (data: any) => {
-              this.room = data
-              console.log(data)
-            }
-          })
+        next: () => {
+          this.getRoom()
         }
       })
       this.connection.invoke("PlayChess", this.Room_Id.toString())
+      this.ChangeChessBoardtoSquares()
     }
     else {
       alert("Chưa đủ người!");
